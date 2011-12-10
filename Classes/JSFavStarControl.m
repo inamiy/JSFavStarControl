@@ -85,6 +85,17 @@
     [super dealloc];
 }
 
+#pragma mark Accessors
+
+- (void)setRating:(NSInteger)rating
+{
+    if (rating != _rating) {
+        _rating = rating;
+        [self setNeedsDisplay];
+    }
+}
+
+#pragma mark UIControl
 
 - (BOOL)beginTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event
 {
