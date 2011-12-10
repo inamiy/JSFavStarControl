@@ -9,22 +9,26 @@
 
 #import "JSFavStarControl.h"
 
-#define RATING_MAX 5
 
 @implementation JSFavStarControl
 
+@synthesize dotImage = _dotImage;
+@synthesize starImage = _starImage;
+@synthesize maxStars = _maxStars;
 @synthesize rating = _rating;
 
-- (id)initWithLocation:(CGPoint)location dotImage:(UIImage *)dotImage starImage:(UIImage *)starImage
+- (id)initWithFrame:(CGRect)frame dotImage:(UIImage *)dotImage starImage:(UIImage *)starImage
 {
-	if (self = [self initWithFrame:CGRectMake(location.x, location.y, 100, 20)])
+	if (self = [self initWithFrame:frame])
 	{
 		_rating = 0;
+        _maxStars = 5;
+        
 		self.backgroundColor = [UIColor clearColor];
 		self.opaque = NO;
 		
-		_dot = [dotImage retain];
-		_star = [starImage retain];
+		_dotImage = [dotImage retain];
+		_starImage = [starImage retain];
 	}
 	
 	return self;
@@ -32,38 +36,51 @@
 
 - (void)drawRect:(CGRect)rect
 {
-	CGPoint currPoint = CGPointZero;
+    CGPoint currPoint = CGPointZero;
+    
+    CGFloat imageWidth = 20;
+    if (_starImage) {
+        imageWidth = _starImage.size.width;
+    }
+    else if (_dotImage) {
+        imageWidth = _dotImage.size.width;
+    }
+    
+    CGFloat stepX = imageWidth + (rect.size.width - self.maxStars*imageWidth)/(self.maxStars-1);
 	
 	for (int i = 0; i < _rating; i++)
 	{
-		if (_star)
-			[_star drawAtPoint:currPoint];
-		else
+		if (_starImage) {
+			[_starImage drawAtPoint:currPoint];
+        }
+		else {
 			[@"★" drawAtPoint:currPoint withFont:[UIFont boldSystemFontOfSize:22]];
-			
-		currPoint.x += 20;
+        }
+        currPoint.x += stepX;
 	}
 	
-	NSInteger remaining = RATING_MAX - _rating;
+	NSInteger remaining = self.maxStars - _rating;
 	
 	for (int i = 0; i < remaining; i++)
 	{
-		if (_dot)
-			[_dot drawAtPoint:currPoint];
-		else
+		if (_dotImage) {
+			[_dotImage drawAtPoint:currPoint];
+        }
+		else {
 			[@" •" drawAtPoint:currPoint withFont:[UIFont boldSystemFontOfSize:22]];
-		currPoint.x += 20;
+        }
+        currPoint.x += stepX;
 	}
 }
 
 
 - (void)dealloc
 {
-	[_dot release];
-	[_star release];
+	[_dotImage release];
+	[_starImage release];
 	
-	_dot = nil,
-	_star = nil;
+	_dotImage = nil,
+	_starImage = nil;
 	
     [super dealloc];
 }
@@ -72,11 +89,11 @@
 - (BOOL)beginTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event
 {
 	CGFloat width = self.frame.size.width;
-	CGRect section = CGRectMake(0, 0, width / RATING_MAX, self.frame.size.height);
+	CGRect section = CGRectMake(0, 0, width / self.maxStars, self.frame.size.height);
 	
 	CGPoint touchLocation = [touch locationInView:self];
 	
-	for (int i = 0; i < RATING_MAX; i++)
+	for (int i = 0; i < self.maxStars; i++)
 	{		
 		if (touchLocation.x > section.origin.x && touchLocation.x < section.origin.x + section.size.width)
 		{ // touch is inside section
@@ -99,7 +116,7 @@
 - (BOOL)continueTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event
 {
 	CGFloat width = self.frame.size.width;
-	CGRect section = CGRectMake(0, 0, width / RATING_MAX, self.frame.size.height);
+	CGRect section = CGRectMake(0, 0, width / self.maxStars, self.frame.size.height);
 	
 	CGPoint touchLocation = [touch locationInView:self];
 	
@@ -113,15 +130,15 @@
 	}
 	else if (touchLocation.x > width)
 	{
-		if (_rating != 5)
+		if (_rating != self.maxStars)
 		{
-			_rating = 5;
+			_rating = self.maxStars;
 			[self sendActionsForControlEvents:UIControlEventValueChanged];
 		}
 	}
 	else
 	{
-		for (int i = 0; i < RATING_MAX; i++)
+		for (int i = 0; i < self.maxStars; i++)
 		{
 			if (touchLocation.x > section.origin.x && touchLocation.x < section.origin.x + section.size.width)
 			{ // touch is inside section
@@ -144,7 +161,7 @@
 - (void)endTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event
 {
 	CGFloat width = self.frame.size.width;
-	CGRect section = CGRectMake(0, 0, width / RATING_MAX, self.frame.size.height);
+	CGRect section = CGRectMake(0, 0, width / self.maxStars, self.frame.size.height);
 	
 	CGPoint touchLocation = [touch locationInView:self];
 	
@@ -158,16 +175,16 @@
 	}
 	else if (touchLocation.x > width)
 	{
-		if (_rating != 5)
+		if (_rating != self.maxStars)
 		{
-			_rating = 5;
+			_rating = self.maxStars;
 			[self sendActionsForControlEvents:UIControlEventValueChanged];
 		}
 		
 	}
 	else
 	{
-		for (int i = 0; i < RATING_MAX; i++)
+		for (int i = 0; i < self.maxStars; i++)
 		{
 			if (touchLocation.x > section.origin.x && touchLocation.x < section.origin.x + section.size.width)
 			{
