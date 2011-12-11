@@ -26,6 +26,7 @@
         
 		self.backgroundColor = [UIColor clearColor];
 		self.opaque = NO;
+		self.contentMode = UIViewContentModeRedraw;
 		
 		_dotImage = [dotImage retain];
 		_starImage = [starImage retain];
